@@ -15,7 +15,7 @@ FIELDS = (
     "properties(sheetId,index,title,hidden,sheetType,tabColor,gridProperties),"
     "merges,protectedRanges(range,description,warningOnly),"
     "conditionalFormats(ranges,booleanRule(condition)),"
-    "charts(chartId,spec(title,basicChart(chartType,domains,series),pieChart,lineChart)),"
+    "charts(chartId,spec(title,basicChart(chartType,domains,series),pieChart)),"
     "data(startRow,startColumn,"
     "rowMetadata(hiddenByUser),columnMetadata(hiddenByUser),"
     "rowData(values(userEnteredValue,effectiveValue,formattedValue,note,hyperlink,"
@@ -26,7 +26,12 @@ FIELDS = (
 
 def spreadsheet_id(url_or_id: str) -> str:
     m = SHEET_URL.search(url_or_id)
-    return m.group(1) if m else url_or_id.strip()
+    if m:
+        return m.group(1)
+    sid = url_or_id.strip()
+    if not re.fullmatch(r"[A-Za-z0-9_-]{20,}", sid):
+        raise SystemExit(f"Not a Google Sheets URL or spreadsheet ID: {url_or_id!r}\nExpected https://docs.google.com/spreadsheets/d/<44-char id>/edit")
+    return sid
 
 
 def _grid_range_to_a1(gr: dict, sheet_titles: dict[int, str]) -> str:
