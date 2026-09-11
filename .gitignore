@@ -1,0 +1,10 @@
+out/
+*.duckdb
+*.duckdb.wal
+.env
+credentials.json
+service_account.json
+token.json
+__pycache__/
+*.pyc
+.venv/
