@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# wrapper: run the CLI in the `sheets` conda env from anywhere
+cd "$(dirname "$(readlink -f "$0")")" && exec /mnt/e/conda/envs/sheets/bin/python -m sheets_decomposer.cli "$@"
