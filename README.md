@@ -86,7 +86,7 @@ pip install -r requirements.txt
 
 `./sd` picks its interpreter in this order: `SD_PYTHON` from `.env`, an active `$CONDA_PREFIX`, `.venv`, a `sheets` env under `~/anaconda3` or `~/miniconda3`, then whatever `python` is on the path.
 
-Google credentials are needed only for the Sheets URL path and for pushing to Docs. `SETUP_GOOGLE_API.md` walks the console clicks (about 15 minutes, once). The `.xlsx` path and the link-shared export path need nothing.
+Google credentials are needed only for the Sheets URL path and for pushing to Docs. `docs/SETUP_GOOGLE_API.md` walks the console clicks (about 15 minutes, once). The `.xlsx` path and the link-shared export path need nothing.
 
 ## Use
 

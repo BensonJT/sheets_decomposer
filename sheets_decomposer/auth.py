@@ -7,7 +7,7 @@ Three modes, chosen by --auth:
            Best for headless/automated runs.
   export   No credentials. Downloads the workbook as .xlsx through the public export URL.
            Works only when the sheet is link-shared ("Anyone with the link").
-See SETUP_GOOGLE_API.md for the console clicks.
+See docs/SETUP_GOOGLE_API.md for the console clicks.
 """
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def oauth_credentials(write: bool = False, open_browser: bool = True):
             raise SystemExit(
                 f"OAuth client file not found: {OAUTH_CLIENT}\n"
                 "Download the Desktop-app OAuth client JSON from Google Cloud Console "
-                "(APIs & Services -> Credentials) and save it there. See SETUP_GOOGLE_API.md."
+                "(APIs & Services -> Credentials) and save it there. See docs/SETUP_GOOGLE_API.md."
             )
         flow = InstalledAppFlow.from_client_secrets_file(str(OAUTH_CLIENT), scopes)
         # WSL: the local server still works; if no browser opens, copy the printed URL
@@ -79,7 +79,7 @@ def service_account_credentials(write: bool = False):
         raise SystemExit(
             f"Service account key not found: {SERVICE_ACCOUNT}\n"
             "Create one in Google Cloud Console (IAM & Admin -> Service Accounts -> Keys) "
-            "and share the target sheet with the service account's email. See SETUP_GOOGLE_API.md."
+            "and share the target sheet with the service account's email. See docs/SETUP_GOOGLE_API.md."
         )
     return service_account.Credentials.from_service_account_file(
         str(SERVICE_ACCOUNT), scopes=SCOPES_RW if write else SCOPES_RO
