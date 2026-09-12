@@ -2,6 +2,20 @@
 
 A Gem that answers questions about one workbook using only the files this tool produces. The point is discipline: the model explains structured output; it never reads the spreadsheet.
 
+## Drive layout
+
+One folder holds everything the Gem touches:
+
+```
+My Drive/
+└── sheets-decomposer/
+    ├── gem_context        Google Doc, overwritten by `sd push-docs` (Gem knowledge #1)
+    ├── report             Google Doc, overwritten by `sd push-docs` (Gem knowledge #2)
+    └── sample_calls_chats Google Sheet: the seeded practice workbook, uploaded from out/ and opened as Sheets
+```
+
+Create the two Docs empty, copy their URLs into `.env` as `SD_GEM_CONTEXT_DOC` and `SD_REPORT_DOC`, and never edit them by hand; each push wipes and rewrites them. Any workbook you want to analyze can live anywhere in Drive; only the two Docs need fixed locations.
+
 ## Create the Gem (about 3 minutes)
 
 1. gemini.google.com → **Gems** → **New Gem**. Name it `Workbook Decomposer`.
