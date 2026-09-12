@@ -59,3 +59,19 @@ All three are gitignored. Never put them in the vault.
 - `403 The caller does not have permission` with a service account → the sheet was not shared with the SA email.
 - Browser does not open from WSL → copy the printed `http://localhost:…` URL into Windows Chrome; the callback still reaches WSL.
 - `HttpError 429` → quota; wait a minute. One ingest is two calls, so this only happens in loops.
+
+## D. Pushing to the Gem's knowledge Docs (added 2026-09-11)
+
+The Gem reads two Google Docs (`gem_context` and `report`) linked as knowledge. Drive-linked knowledge is read live, so overwriting the Docs updates the Gem with no re-upload.
+
+1. **APIs & Services → Library → Google Docs API → Enable** (one click, same project).
+2. The tool now requests the `documents` scope. Delete the old token so it can re-consent once:
+   ```bash
+   rm ~/.config/sheets_decomposer/token.json
+   ```
+3. Doc URLs live in `.env` (`SD_GEM_CONTEXT_DOC`, `SD_REPORT_DOC`). Then either:
+   ```bash
+   ./sd push-docs out/sample_calls_chats                 # push what is on disk
+   ./sd ingest "<sheet url>" --push-docs                 # ingest and push in one go
+   ```
+Markdown lands as plain text in the Doc, which is what the Gem reads anyway. The Docs are wiped and rewritten on every push; do not hand-edit them.

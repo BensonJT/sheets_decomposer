@@ -23,14 +23,20 @@ OAUTH_CLIENT = Path(os.environ.get("SD_OAUTH_CLIENT", CONFIG_DIR / "credentials.
 OAUTH_TOKEN = Path(os.environ.get("SD_OAUTH_TOKEN", CONFIG_DIR / "token.json"))
 SERVICE_ACCOUNT = Path(os.environ.get("SD_SERVICE_ACCOUNT", CONFIG_DIR / "service_account.json"))
 
+# `documents` lets the tool overwrite the two Google Docs the GEM reads as knowledge.
+# It is a Docs-only scope: no Drive listing, no Sheets write.
 SCOPES_RO = [
     "https://www.googleapis.com/auth/spreadsheets.readonly",
     "https://www.googleapis.com/auth/drive.metadata.readonly",
+    "https://www.googleapis.com/auth/documents",
 ]
 SCOPES_RW = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.metadata.readonly",
+    "https://www.googleapis.com/auth/documents",
 ]
+GEM_CONTEXT_DOC = os.environ.get("SD_GEM_CONTEXT_DOC", "")
+REPORT_DOC = os.environ.get("SD_REPORT_DOC", "")
 
 
 def oauth_credentials(write: bool = False, open_browser: bool = True):
@@ -96,3 +102,9 @@ def build_services(mode: str = "oauth", write: bool = False):
     sheets = build("sheets", "v4", credentials=creds, cache_discovery=False)
     drive = build("drive", "v3", credentials=creds, cache_discovery=False)
     return sheets, drive
+
+
+def build_docs(mode: str = "oauth"):
+    from googleapiclient.discovery import build
+
+    return build("docs", "v1", credentials=get_credentials(mode), cache_discovery=False)
