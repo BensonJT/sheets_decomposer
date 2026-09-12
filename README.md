@@ -6,14 +6,37 @@ One working rule: **scripts do the extraction and the deterministic checks; the 
 
 ## What you get
 
-For each workbook, `out/<name>/`:
+For each workbook, `out/<name>/` holds four files. Two are for the Gem; two are for the deeper pass a human does with an AI assistant at the keyboard.
 
-| File | What it is |
+| File | Audience | What it is |
+|---|---|---|
+| `report.md` | human first, Gem second | inventory, mermaid dependency diagram, formula patterns, findings by severity, questions for the model owner. Read §1–2 before opening the workbook |
+| `gem_context.md` | the Gem | structure-only context: sheets, order, edges, named ranges, formula blocks, labels, findings. No data rows unless you ask for them |
+| `model.duckdb` | human + AI assistant | 18 tables and 12 `vw_` views over every cell, formula, reference edge, pattern, role and finding. The place to ask questions the report did not anticipate |
+| `model.json` | AI assistant + scripts | the whole extraction and analysis as one document: every populated cell with formula, value, format, note and validation, plus named ranges, protections, merges, charts, and the full analysis (edges, patterns, roles, defects, graph). The input for any further script or for a coding assistant working the problem |
+
+### Working the DuckDB file with an assistant
+
+`model.duckdb` is where the analysis goes past the report. Open it with `./sd query`, the DuckDB CLI, DBeaver, or DataGrip, or hand it to a coding assistant (Claude Code, Cursor, Codex) that can run SQL. Questions the views answer directly:
+
+| Question | Query |
 |---|---|
-| `model.json` | every populated cell (formula, value, format, note, validation), named ranges, protections, merges, charts, plus the full analysis |
-| `model.duckdb` | 18 tables and 12 `vw_` views; query with `sd query` or any DuckDB client |
-| `report.md` | inventory, mermaid dependency diagram, formula patterns, findings by severity, questions for the model owner |
-| `gem_context.md` | structure-only context for a Gemini Gem or any LLM: no data rows unless you ask for them |
+| What is in this workbook, and what role does each tab play? | `select * from vw_sheet_summary` |
+| What depends on what? | `select * from vw_sheet_dependency` |
+| Where does data enter by hand? | `select sheet, count(*) from vw_inputs group by 1` |
+| What are the terminal outputs? | `select * from vw_outputs` |
+| Which cells read this one cell? (change target) | `select from_sheet, from_a1 from edges where to_sheet='Assumptions' and to_range='B4'` |
+| Every distinct piece of logic, one row per block | `select * from vw_formula_patterns` |
+| Which blocks break their own pattern? | `select * from vw_inconsistent_patterns` |
+| The defect list, worst first | `select * from vw_defects` |
+| External spreadsheets this one depends on | `select * from vw_external_refs` |
+| The author's function vocabulary | `select * from vw_functions` |
+
+`sql/practice_queries.sql` runs the ten in sequence. The base tables (`cells`, `formulas`, `edges`, `cell_roles`, `patterns`, `defects`, `named_ranges`, `validations`, `protected_ranges`, `charts`, `merges`, `sheets`, `workbook`) are there for anything the views do not cover. Close any GUI connection before re-running `ingest` to the same name; DuckDB holds an exclusive lock.
+
+### Working the JSON with an assistant
+
+`model.json` is the same content as the database, as one document: `workbook` (source, properties, Drive metadata, named ranges, sheets with their cells) and `analysis` (formulas with parsed refs and R1C1, edges, sheet_edges, cell_roles, sheet_summary, patterns, defects, graph, functions, importranges). It is the right input when the next step is code: a script that rewrites a block, a diff between two ingests of the same workbook, or a coding assistant that needs the full picture in one file. It is large for a chat window; point an assistant at the file rather than pasting it.
 
 ## Process flow
 
