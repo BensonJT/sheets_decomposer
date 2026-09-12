@@ -28,6 +28,7 @@ def ingest(
     auth: str = typer.Option("oauth", "--auth", "-a", help="oauth | service | export (no auth; link-shared only)"),
     include_values: bool = typer.Option(False, "--include-values", help="Put sample data rows into gem_context.md (default: structure only)"),
     out_dir: Path = typer.Option(OUT, "--out", help="Base output directory"),
+    push: bool = typer.Option(False, "--push-docs", help="After writing, overwrite the Google Docs named by SD_GEM_CONTEXT_DOC / SD_REPORT_DOC (.env)"),
 ):
     """Fetch a workbook, analyze it, write model.json + model.duckdb + report.md + gem_context.md."""
     from . import analyze as _an, report as _rep, store as _st
@@ -68,6 +69,30 @@ def ingest(
     for (sev, cat), n in sorted(cnt.items(), key=lambda kv: ({"high": 0, "medium": 1, "low": 2}[kv[0][0]], -kv[1])):
         rprint(f"  [{'red' if sev=='high' else 'yellow' if sev=='medium' else 'dim'}]{sev:6}[/] {cat:28} {n}")
     rprint(f"\n[green]wrote[/] {folder}/  (model.json, model.duckdb, report.md, gem_context.md)")
+    if push:
+        _push(folder, None, None, "oauth" if auth == "export" or is_file else auth)
+
+
+def _push(folder: Path, gem_doc, report_doc, auth_mode: str):
+    from .auth import GEM_CONTEXT_DOC, REPORT_DOC
+    from .push_docs import push_folder
+    gem_doc, report_doc = gem_doc or GEM_CONTEXT_DOC, report_doc or REPORT_DOC
+    if not (gem_doc or report_doc):
+        raise SystemExit("No target docs. Set SD_GEM_CONTEXT_DOC and/or SD_REPORT_DOC in .env, or pass --gem-doc/--report-doc.")
+    with console.status("pushing to Google Docs…"):
+        for line in push_folder(folder, gem_doc, report_doc, auth_mode):
+            rprint(f"  [green]pushed[/] {line}")
+
+
+@app.command("push-docs")
+def push_docs(
+    folder: Path = typer.Argument(..., help="an out/<name>/ folder containing gem_context.md and report.md"),
+    gem_doc: str = typer.Option(None, "--gem-doc", help="Google Doc URL/ID for gem_context.md (default: SD_GEM_CONTEXT_DOC)"),
+    report_doc: str = typer.Option(None, "--report-doc", help="Google Doc URL/ID for report.md (default: SD_REPORT_DOC)"),
+    auth: str = typer.Option("oauth", "--auth", "-a"),
+):
+    """Overwrite the Gem's knowledge Docs with the current markdown from an output folder."""
+    _push(folder, gem_doc, report_doc, auth)
 
 
 @app.command()
