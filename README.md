@@ -1,6 +1,6 @@
 # sheets_decomposer
 
-Deterministic structural extraction of a spreadsheet (Google Sheets or .xlsx) into JSON + DuckDB + a Markdown report + a compact LLM context. Built to practice the approach described to Included Health: **scripts do the extraction and the deterministic checks; the model only sees structured output; a human reviews anything that becomes a source of truth.**
+Deterministic structural extraction of a spreadsheet (Google Sheets or .xlsx) into JSON + DuckDB + a Markdown report + a compact LLM context. Built on one working rule: **scripts do the extraction and the deterministic checks; the model only sees structured output; a human reviews anything that becomes a source of truth.**
 
 ```
 Google Sheets URL ──(Sheets API, one call)──┐
@@ -52,4 +52,16 @@ What it cannot see: staleness (a date typed in a cell), semantic wrongness (a fo
 3. Read the logic as patterns, not cells.  ← §3, `vw_formula_patterns`
 4. List defects in the owner's vocabulary; severity and location.  ← §7, `vw_defects`
 5. Build alongside, never modify in place; reconcile the two.
-6. Write it up: assumptions, findings, changes, checks, limits, next.  ← `TakeHome_WriteUp_Template.md` in the vault
+6. Write it up: assumptions, findings, changes, checks, limits, next.  ← `report.md` §7–8 are the raw material
+
+## Known gaps
+
+- Transposed references (down a column reading across a row) show as single formulas, not a block.
+- A formula that is consistent but computes the wrong thing looks clean. Read the row labels.
+- Staleness is a label, not a finding: a date typed in a cell is data.
+- Charts come through on the Sheets API path only; openpyxl drops them.
+- Gemini Gems do not re-read a linked Google Doc on their own. After `push-docs`, remove and re-attach the Docs in the Gem editor.
+
+## License
+
+MIT.
