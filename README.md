@@ -12,7 +12,7 @@ For each workbook, `out/<name>/` holds four files. Two are for the Gem; two are 
 |---|---|---|
 | `report.md` | human first, Gem second | inventory, mermaid dependency diagram, formula patterns, findings by severity, questions for the model owner. Read §1–2 before opening the workbook |
 | `gem_context.md` | the Gem | structure-only context: sheets, order, edges, named ranges, formula blocks, labels, findings. No data rows unless you ask for them |
-| `model.duckdb` | human + AI assistant | 18 tables and 12 `vw_` views over every cell, formula, reference edge, pattern, role and finding. The place to ask questions the report did not anticipate |
+| `model.duckdb` | human + AI assistant | 18 commented tables and 13 `vw_` views over every cell, formula, reference edge, pattern, role and finding. The place to ask questions the report did not anticipate |
 | `model.json` | AI assistant + scripts | the whole extraction and analysis as one document: every populated cell with formula, value, format, note and validation, plus named ranges, protections, merges, charts, and the full analysis (edges, patterns, roles, defects, graph). The input for any further script or for a coding assistant working the problem |
 
 ### Working the DuckDB file with an assistant
@@ -32,7 +32,7 @@ For each workbook, `out/<name>/` holds four files. Two are for the Gem; two are 
 | External spreadsheets this one depends on | `select * from vw_external_refs` |
 | The author's function vocabulary | `select * from vw_functions` |
 
-`sql/practice_queries.sql` runs the ten in sequence. The base tables (`cells`, `formulas`, `edges`, `cell_roles`, `patterns`, `defects`, `named_ranges`, `validations`, `protected_ranges`, `charts`, `merges`, `sheets`, `workbook`) are there for anything the views do not cover. Close any GUI connection before re-running `ingest` to the same name; DuckDB holds an exclusive lock.
+The database describes itself: `select * from vw_schema` lists every table, view and column with its type, category and comment, so an assistant can orient without this README. `sql/practice_queries.sql` runs the ten questions in sequence. The base tables (`cells`, `formulas`, `edges`, `cell_roles`, `patterns`, `defects`, `named_ranges`, `validations`, `protected_ranges`, `charts`, `merges`, `sheets`, `workbook`) are there for anything the views do not cover. Close any GUI connection before re-running `ingest` to the same name; DuckDB holds an exclusive lock.
 
 ### Working the JSON with an assistant
 
