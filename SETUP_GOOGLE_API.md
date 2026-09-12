@@ -16,7 +16,7 @@ Neither requires a paid GCP account. Sheets/Drive API calls are free within quot
    - Scopes: nothing to add here; the app requests them at runtime.
 5. **APIs & Services → Credentials → + Create credentials → OAuth client ID**:
    - Application type **Desktop app**, name `sheets-decomposer-cli` → Create.
-   - **Download JSON** → save it as `~/.config/sheets_decomposer/credentials.json` (in WSL: `mkdir -p ~/.config/sheets_decomposer` then copy from `/mnt/c/Users/Jeffrey Benson/Downloads/client_secret_….json`).
+   - **Download JSON** → save it as `~/.config/sheets_decomposer/credentials.json` (in WSL: `mkdir -p ~/.config/sheets_decomposer` then copy it from your Windows Downloads folder, e.g. `/mnt/c/Users/<you>/Downloads/client_secret_….json`).
 6. First run:
    ```bash
    cd ~/code/sheets_decomposer

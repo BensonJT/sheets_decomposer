@@ -18,10 +18,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-CONFIG_DIR = Path(os.environ.get("SD_CONFIG_DIR", Path.home() / ".config" / "sheets_decomposer"))
-OAUTH_CLIENT = Path(os.environ.get("SD_OAUTH_CLIENT", CONFIG_DIR / "credentials.json"))
-OAUTH_TOKEN = Path(os.environ.get("SD_OAUTH_TOKEN", CONFIG_DIR / "token.json"))
-SERVICE_ACCOUNT = Path(os.environ.get("SD_SERVICE_ACCOUNT", CONFIG_DIR / "service_account.json"))
+CONFIG_DIR = Path(os.path.expanduser(os.environ.get("SD_CONFIG_DIR", str(Path.home() / ".config" / "sheets_decomposer"))))
+OAUTH_CLIENT = Path(os.path.expanduser(os.environ.get("SD_OAUTH_CLIENT", str(CONFIG_DIR / "credentials.json"))))
+OAUTH_TOKEN = Path(os.path.expanduser(os.environ.get("SD_OAUTH_TOKEN", str(CONFIG_DIR / "token.json"))))
+SERVICE_ACCOUNT = Path(os.path.expanduser(os.environ.get("SD_SERVICE_ACCOUNT", str(CONFIG_DIR / "service_account.json"))))
 
 # `documents` lets the tool overwrite the two Google Docs the GEM reads as knowledge.
 # It is a Docs-only scope: no Drive listing, no Sheets write.
