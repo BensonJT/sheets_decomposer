@@ -34,7 +34,7 @@ Scopes requested: `spreadsheets.readonly` and `drive.metadata.readonly`. Nothing
 4. In the target Google Sheet → **Share** → paste that email → Viewer. This is the whole trick: the service account is just another "user" you share with.
 5. Run with `./sd ingest <url> --auth service`.
 
-Enterprise note (Included Health, day one): org policy usually blocks key creation (`iam.disableServiceAccountKeyCreation`) and the Workspace admin must trust the app for Sheets scopes. That is why the Day-1 playbook says ask for keyless auth by name and start in Apps Script the same day. On a personal account none of that applies.
+Enterprise note: in a corporate Workspace, org policy usually blocks key creation (`iam.disableServiceAccountKeyCreation`) and a Workspace admin must trust the app for Sheets scopes. Ask for keyless auth (workload identity or Application Default Credentials) by name, and start extracting in Apps Script the same day so the approval clock never blocks the work. On a personal account none of that applies.
 
 ## C. No credentials at all (works tonight)
 
