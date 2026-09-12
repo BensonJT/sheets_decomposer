@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
-# wrapper: run the CLI in the `sheets` conda env from anywhere
-cd "$(dirname "$(readlink -f "$0")")" && exec /mnt/e/conda/envs/sheets/bin/python -m sheets_decomposer.cli "$@"
+# Run the CLI. Uses the `sheets` conda env if present, else whatever `python` is active.
+cd "$(dirname "$(readlink -f "$0")")" || exit 1
+for PY in /mnt/e/conda/envs/sheets/bin/python "$CONDA_PREFIX/bin/python" .venv/bin/python; do
+  [ -x "$PY" ] && exec "$PY" -m sheets_decomposer.cli "$@"
+done
+exec python -m sheets_decomposer.cli "$@"
