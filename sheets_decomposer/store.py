@@ -50,6 +50,8 @@ def write_duckdb(path: str, wb: dict, an: dict) -> None:
     importranges = _df(an["importranges"], ["sheet", "a1", "source", "spreadsheet_id", "range"])
     workbook = _df([{"title": wb["properties"]["title"], "source_type": wb["source"]["type"], "source_id": wb["source"].get("id"), "url": wb["source"].get("url"), "fetched_at": wb["source"]["fetched_at"], "n_sheets": len(wb["sheets"]), "drive": json.dumps(wb.get("drive", {}))}])
 
+    for col in ("formula", "value", "formatted", "number_format", "note", "hyperlink"):
+        cells[col] = cells[col].astype("string")  # all-null columns would otherwise type as INTEGER
     for name, df in {
         "workbook": workbook, "sheets": sheets, "cells": cells, "named_ranges": named, "validations": validations, "protected_ranges": protected,
         "conditional_formats": condfmt, "charts": charts, "merges": merges, "formulas": formulas, "edges": edges, "sheet_edges": sheet_edges,

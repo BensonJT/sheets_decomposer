@@ -1,4 +1,6 @@
 -- Practice queries. Run one at a time:  sd query out/<slug>/model.duckdb -f sql/practice_queries.sql  (runs all)
+-- 0. What is in this database? (self-describing: table and column comments ride along)
+SELECT object_type, table_name, column_name, data_type_category, column_description FROM vw_schema WHERE table_description <> '' LIMIT 40;
 -- 1. What is in this workbook?
 SELECT * FROM vw_sheet_summary;
 -- 2. What depends on what?
