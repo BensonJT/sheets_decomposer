@@ -50,6 +50,7 @@ Rules
 Run these against `sd sample` (score with `out/sample_calls_chats_DEFECT_KEY.md`) or against any real workbook. If the Gem answers 1–6 and 11–18 with citations, the extraction is good enough to hand to an analyst. Ask one at a time; ask the traps in fresh chats.
 
 **Inventory and flow**
+
 1. What sheets are in this workbook and what is each one for?
 2. In what order does the model calculate? Which sheet is the last one before an output leaves?
 3. Which sheets are inputs, which are calculation, which are outputs? Which sheets are dead?
@@ -58,12 +59,14 @@ Run these against `sd sample` (score with `out/sample_calls_chats_DEFECT_KEY.md`
 6. Where does data enter this model by hand? Name the ranges.
 
 **Logic**
+
 7. Explain the formula in one row in plain English. What are its inputs?
 8. What is the difference between two adjacent summary rows?
 9. How is a factor (e.g. seasonality) applied? Which periods carry the highest factor?
 10. What named ranges exist, and is any unused?
 
 **Defects**
+
 11. List every hard-coded value that sits inside a formula range. Which output does each one distort?
 12. Which formulas break the pattern of their neighbours? For each, what is the likely mistake?
 13. Are there broken links or error values? Where do they propagate?
@@ -74,12 +77,14 @@ Run these against `sd sample` (score with `out/sample_calls_chats_DEFECT_KEY.md`
 18. Which finding would you fix first, and why?
 
 **Traps** (the right answer is "not in the extraction" or "confirm with the owner")
+
 19. What is the total for a given period? *(values are not in the structure-only context)*
 20. Is the typed-over number in a given cell correct? *(a script cannot know)*
 21. When were the assumptions last updated? *(a data cell; expect a pointer, not a value, unless it was typed as text and leaked into the labels)*
 22. Who built this model? *(only the Sheets path carries Drive owner metadata)*
 
 **Documentation**
+
 23. Write the one-page model documentation: purpose, inputs, logic, outputs, controls, open questions.
 24. Draft the "What I found" section of a cover note to the model owner: the vocabulary in rule 5, severity-ordered, factual, no editorializing.
 
