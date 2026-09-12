@@ -32,7 +32,35 @@ For each workbook, `out/<name>/` holds four files. Two are for the Gem; two are 
 | External spreadsheets this one depends on | `select * from vw_external_refs` |
 | The author's function vocabulary | `select * from vw_functions` |
 
-The database describes itself: `select * from vw_schema` lists every table, view and column with its type, category and comment, so an assistant can orient without this README. `sql/practice_queries.sql` runs the ten questions in sequence. The base tables (`cells`, `formulas`, `edges`, `cell_roles`, `patterns`, `defects`, `named_ranges`, `validations`, `protected_ranges`, `charts`, `merges`, `sheets`, `workbook`) are there for anything the views do not cover. Close any GUI connection before re-running `ingest` to the same name; DuckDB holds an exclusive lock.
+`sql/practice_queries.sql` runs the ten questions in sequence.
+
+### `vw_schema`: the database describes itself
+
+Every table and every non-obvious column in `model.duckdb` carries a comment, and `vw_schema` exposes them as one query: schema, table, object type (table or view), column, position, data type, a coarse type category (numeric, text, temporal, boolean, json, array), nullability, constraints, the column's comment and the table's comment. Query it; do not dump the catalog.
+
+```sql
+select table_name, table_description from vw_schema where column_name = 'sheet' or table_name = 'workbook';   -- what tables exist and what each holds
+select column_name, data_type, column_description from vw_schema where table_name = 'defects';                  -- what a finding row looks like
+select table_name, column_name from vw_schema where column_description like '%json%';                            -- which columns need json parsing
+```
+
+**How a person uses it.** Open the database in DBeaver, run `select * from vw_schema`, and the result is the data dictionary: what `kind` means on `cells`, what `r1c1` is on `formulas`, what `axis` and `n_variants` mean on `patterns`, the full category list on `defects`. It replaces reading this README before writing a query.
+
+**How an AI assistant uses it.** Hand a coding assistant the `.duckdb` path and one instruction: "query `vw_schema` first, then answer." The comments carry enough meaning for the assistant to write correct joins on its own: that `edges.to_sheet` matches `sheets.title`, that `cell_roles.role = 'input'` marks the literal cells formulas read, that `patterns.is_pattern` filters noise. The assistant orients from the database, not from a pasted schema or a chat-window summary, which keeps the extraction the single source of truth.
+
+**What it lets you ask about the spreadsheet model.** The view answers questions about the *database*, and through it, questions about the *workbook* that the pre-built views did not anticipate:
+
+| Question about the model | Path through the schema |
+|---|---|
+| What is the grain of each table? | table comments: one row per cell, per formula, per reference, per run, per finding |
+| Which columns can I join on? | every derived table carries `sheet` and `a1` (or `from_sheet`/`from_a1`); `sheets.title` is the sheet key |
+| Which columns hold lists I must unpack? | column descriptions that say json: `formulas.functions`, `formulas.magic_numbers`, `validations.values`, `charts.source_ranges` |
+| Where are the flags for risky formulas? | `formulas.has_dynamic`, `has_external`, `has_volatile`, `has_error_handling`, `has_whole_column_ref` |
+| How do I tell a real pattern from noise? | `patterns.is_pattern` and `n_variants` comments |
+| What does each defect category mean? | the `defects.category` comment lists all seventeen |
+| Can I trust `value`? | the `cells.value` comment says when it is null (xlsx written by a script) and how errors are stored |
+
+The view is rebuilt on every ingest, so it always matches the database it sits in. The base tables (`cells`, `formulas`, `edges`, `cell_roles`, `patterns`, `defects`, `named_ranges`, `validations`, `protected_ranges`, `charts`, `merges`, `sheets`, `workbook`) are there for anything the views do not cover. Close any GUI connection before re-running `ingest` to the same name; DuckDB holds an exclusive lock.
 
 ### Working the JSON with an assistant
 
