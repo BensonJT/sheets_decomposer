@@ -116,7 +116,7 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
     ws["F5"].comment = Comment("Manual override per ops lead — DEFECT: hard-coded", "practice")
     ws["I9"] = "=I7*1.05/3600"                       # magic number + wrong logic (Behavioral Health, Jul handle hours)
     ws["K15"] = "=K14/(Hours_per_FTE_month*(1-0.30)*Occupancy)"  # hard-coded shrinkage instead of named range (Navigation, Sep FTE)
-    ws["M19"] = "=Forecast_Input!M8*Seasonality!L$2"             # inconsistent: Dec uses Nov seasonality (Pharmacy, seasonal chats)
+    ws["M19"] = "=Forecast_Input!M8*Seasonality!L$2"             # inconsistent: a seasonal-volume formula pasted into the Handle-hours row (Pharmacy, Nov), and it reads Oct's factor
     ws["B24"] = "Total FTE"
     for m in range(12):
         L = ws.cell(1, 3 + m).column_letter
@@ -164,7 +164,7 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
         "| 1 | Staffing_Calc!F5 | hardcoded_in_formula_range | literal 42 overrides the Required-FTE formula (Primary Care, Apr) |\n"
         "| 2 | Staffing_Calc!I9 | inconsistent_formula + magic_number | Behavioral Health Jul handle-hours uses `I7*1.05/3600`, drops chats and AHT, adds an unexplained 1.05 |\n"
         "| 3 | Staffing_Calc!K15 | inconsistent_formula + magic_number | shrinkage hard-coded as 0.30 instead of the named range (Navigation, Sep) |\n"
-        "| 4 | Staffing_Calc!M19 | inconsistent_formula | Pharmacy Dec seasonal chats reads Nov's seasonality factor (L$2 not M$2) |\n"
+        "| 4 | Staffing_Calc!M19 | inconsistent_formula | Pharmacy **Nov Handle hours** row holds a seasonal-volume formula (`Forecast_Input!M8*Seasonality!L$2`): wrong logic for the row (volume, not hours) AND it reads Oct's factor. Column M = Nov, not Dec |\n"
         "| 5 | Staffing_Calc!C26 | dynamic_reference | INDIRECT builds an address from C27; untraceable |\n"
         "| 6 | Staffing_Calc!C28 | volatile_function | TODAY() |\n"
         "| 7 | Seasonality!C6 | broken_reference / error_value | `=#REF!*1.1` |\n"
@@ -175,7 +175,8 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
         "| 12 | Assumptions (Unused_Buffer) | unused_named_range | defined, never referenced |\n"
         "| 13 | Forecast_Input row 13 | missing_checks (partial) | total check covers 2 of 12 months |\n"
         "| 14 | Checks!A6 | missing_checks | reconciliation Staffing_Calc -> Schedule_Output is a TODO |\n"
-        "| 15 | Checks!B2 / B3 | whole_column_reference | fine here, but note it |\n\n"
+        "| 15 | Checks!B2 / B3 | whole_column_reference | fine here, but note it |\n"
+        "| 16 | README!A5 | stale documentation | says 'see cell B7 on Assumptions'; Last_updated is at B8 (unplanned; the GEM found it on run 1, 2026-09-11) |\n\n"
         "Things the script cannot see and a human must: the staleness in #11, the *semantic* wrongness of #2 (a script flags the pattern break; only reading the line label tells you chats were dropped), and whether #1 was a legitimate business override.\n"
     )
     return str(out), str(key)
