@@ -18,9 +18,15 @@ def _df(rows: list[dict], columns: list[str] | None = None) -> pd.DataFrame:
 
 def write_duckdb(path: str, wb: dict, an: dict) -> None:
     p = Path(path)
-    if p.exists():
-        p.unlink()
-    con = duckdb.connect(str(p))
+    try:
+        if p.exists():
+            p.unlink()
+        con = duckdb.connect(str(p))
+    except (PermissionError, duckdb.IOException) as e:
+        raise SystemExit(
+            f"Cannot rewrite {p}: {str(e).splitlines()[0]}\n"
+            "Close or disconnect any GUI that has this database open, then re-run ingest."
+        ) from None
 
     sheets = _df([{k: v for k, v in s.items() if k not in ("cells", "validations", "protected_ranges", "conditional_formats", "charts", "merges", "hidden_rows", "hidden_cols")} for s in wb["sheets"]])
     cells = _df([{"sheet": s["title"], **c, "value": json.dumps(c["value"]) if isinstance(c["value"], (dict, list)) else (None if c["value"] is None else str(c["value"]))} for s in wb["sheets"] for c in s["cells"]],
@@ -59,7 +65,14 @@ def write_duckdb(path: str, wb: dict, an: dict) -> None:
 
 
 def query(path: str, sql: str) -> pd.DataFrame:
-    con = duckdb.connect(path, read_only=True)
+    try:
+        con = duckdb.connect(path, read_only=True)
+    except duckdb.IOException as e:
+        raise SystemExit(
+            f"Cannot open {path}: {str(e).splitlines()[0]}\n"
+            "DuckDB allows one process at a time. Close or disconnect any GUI (DBeaver, DataGrip, DuckDB CLI) "
+            "that has this file open, then retry."
+        ) from None
     try:
         return con.execute(sql).df()
     finally:
