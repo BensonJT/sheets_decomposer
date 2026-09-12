@@ -68,7 +68,7 @@ Run these against `sd sample` (score with `out/sample_calls_chats_DEFECT_KEY.md`
 **Defects**
 
 11. List every hard-coded value that sits inside a formula range. Which output does each one distort?
-12. Which formulas break the pattern of their neighbours? For each, what is the likely mistake?
+12. Which formulas break the pattern of their neighbors? For each, what is the likely mistake?
 13. Are there broken links or error values? Where do they propagate?
 14. What external spreadsheets does this model depend on? What happens if that file is moved?
 15. What checks exist, and what check is missing between the calculation tab and the output tab?

@@ -46,7 +46,7 @@ def _questions(an: dict) -> list[str]:
         if d["category"] == "hardcoded_in_formula_range":
             qs.append(f"{loc} is a typed number inside a formula column. Intentional override, or an overwrite that was never restored?")
         elif d["category"] == "inconsistent_formula":
-            qs.append(f"{loc} computes differently from its neighbours. Is that a deliberate exception? Where is that documented?")
+            qs.append(f"{loc} computes differently from its neighbors. Is that a deliberate exception? Where is that documented?")
         elif d["category"] == "magic_number":
             qs.append(f"{loc} carries a literal factor in the formula. What is it, who owns it, and when was it last reviewed?")
         elif d["category"] == "external_dependency":

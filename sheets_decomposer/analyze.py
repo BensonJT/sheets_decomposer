@@ -165,7 +165,7 @@ def analyze(wb: dict) -> dict:
     patterns.sort(key=lambda p: (p["sheet"], p["axis"], p["range"]))
     for (st, r, c) in sorted(inconsistent):
         f = next(x for x in formulas if x["sheet"] == st and x["row"] == r and x["col"] == c)
-        defect("high", "inconsistent_formula", st, a1(r, c), "formula breaks the pattern of its neighbours (R1C1 signature differs from the run's majority)", f["formula"])
+        defect("high", "inconsistent_formula", st, a1(r, c), "formula breaks the pattern of its neighbors (R1C1 signature differs from the run's majority)", f["formula"])
 
     # ------------------------------------------------ 3b. magic numbers, one finding per distinct formula signature
     UNIT_LITERALS = {"3600", "60", "24", "7", "12", "52", "365", "1000", "100", "0.5", "1440", "30", "4", "3"}
@@ -197,7 +197,7 @@ def analyze(wb: dict) -> dict:
                     su, sd = sig.get((st, r - dr, k - dc)), sig.get((st, r + dr, k + dc))
                     if su == sd:
                         kind = "text_number" if c["kind"] == "string" else "hardcoded_in_formula_range"
-                        defect("high", kind, st, c["a1"], f"literal {c['value']!r} sits inside a run of identical formulas (neighbours {a1(r-dr,k-dc)} and {a1(r+dr,k+dc)}): overwritten formula or manual override", None)
+                        defect("high", kind, st, c["a1"], f"literal {c['value']!r} sits inside a run of identical formulas (neighbors {a1(r-dr,k-dc)} and {a1(r+dr,k+dc)}): overwritten formula or manual override", None)
                         break
     # numbers stored as text anywhere in a mostly-numeric column
     for s in wb["sheets"]:
