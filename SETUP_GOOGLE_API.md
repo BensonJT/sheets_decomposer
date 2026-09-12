@@ -1,12 +1,12 @@
 # Google Sheets API setup (personal account, ~15 minutes, once)
 
-Two credential styles. **Start with OAuth** (it reads anything your own Google account can open, which is exactly the take-home situation). Add a service account later if you want headless runs.
+Two credential styles. **Start with OAuth** (it reads anything your own Google account can open). Add a service account later if you want headless runs.
 
 Neither requires a paid GCP account. Sheets/Drive API calls are free within quota (300 read requests per minute per project; one `ingest` = 2 requests).
 
 ## A. OAuth desktop client (recommended first)
 
-1. Open https://console.cloud.google.com/ signed in as the Google account that will receive the take-home sheet.
+1. Open https://console.cloud.google.com/ signed in as the Google account that the sheets are shared with.
 2. Top bar → project picker → **New project** → name `sheets-decomposer` → Create → select it.
 3. **APIs & Services → Library**: search **Google Sheets API** → Enable. Search **Google Drive API** → Enable. (Drive is only for owner / modified-time metadata; the tool degrades gracefully without it.)
 4. **APIs & Services → OAuth consent screen** (Google now calls this "Google Auth Platform → Branding/Audience"):
@@ -39,7 +39,7 @@ Enterprise note: in a corporate Workspace, org policy usually blocks key creatio
 ## C. No credentials at all (works tonight)
 
 - **Link-shared sheet:** Share → "Anyone with the link" → Viewer, then `./sd ingest <url> --auth export`. The tool downloads the xlsx export; formulas survive the export.
-- **Any .xlsx file:** `./sd ingest path/to/file.xlsx`. If the take-home arrives as an Excel attachment, this is the path. Cached values are present if the file was last saved by Excel or Sheets.
+- **Any .xlsx file:** `./sd ingest path/to/file.xlsx`. If a workbook arrives as an Excel attachment, this is the path. Cached values are present if the file was last saved by Excel or Sheets.
 
 ## Where things live
 
@@ -50,7 +50,7 @@ Enterprise note: in a corporate Workspace, org policy usually blocks key creatio
 | Service account key | `~/.config/sheets_decomposer/service_account.json` |
 | Overrides | `.env` (see `.env.example`) |
 
-All three are gitignored. Never put them in the vault.
+All three are gitignored. Never commit them anywhere.
 
 ## Troubleshooting
 

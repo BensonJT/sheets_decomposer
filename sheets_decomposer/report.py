@@ -107,7 +107,7 @@ def write_report(wb: dict, an: dict) -> str:
             L.append(f"- **{s['title']}**: " + " · ".join(bits))
     L += ["", "## 6. External dependencies", ""]
     L.append(_table(an["importranges"], ["sheet", "a1", "spreadsheet_id", "range"]))
-    L += ["## 7. Findings (the defect list, JD vocabulary)", ""]
+    L += ["## 7. Findings (the defect list, in the owner's vocabulary)", ""]
     counts = defaultdict(int)
     for d in an["defects"]:
         counts[(d["severity"], d["category"])] += 1
