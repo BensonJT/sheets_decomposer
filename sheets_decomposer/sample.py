@@ -58,13 +58,13 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
         ("Occupancy", 0.85, "Target"),
         ("Hours_per_FTE_month", 160, "Finance"),
         ("Attrition_monthly", 0.03, "HR"),
-        ("Last_updated", "2025-11-30", "STALE — DEFECT"),
+        ("Last_updated", "2025-11-30", "WFM"),   # DEFECT: stale date; the label must not say so (the test is reading the date)
     ]
     for i, (k, v, src) in enumerate(rows, start=2):
         ws.cell(i, 1, k); ws.cell(i, 2, v).fill = INPUT_FILL; ws.cell(i, 3, src)
         if k != "Last_updated":
             wb.defined_names[k] = DefinedName(k, attr_text=f"Assumptions!$B${i}")
-    wb.defined_names["Unused_Buffer"] = DefinedName("Unused_Buffer", attr_text="Assumptions!$B$12")  # DEFECT: unused named range
+    wb.defined_names["Buffer_pct"] = DefinedName("Buffer_pct", attr_text="Assumptions!$B$12")  # DEFECT: unused named range (named neutrally)
     ws["A12"] = "Buffer_pct"; ws["B12"] = 0.05
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="1", showErrorMessage=True)
     ws.add_data_validation(dv); dv.add("B4:B5")
@@ -105,6 +105,7 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
         for m in range(12):
             col = 3 + m
             L = ws.cell(1, col).column_letter
+            # DEFECT (kept on purpose, key #17): Seasonality months start in column B, so {L}$2 is the NEXT month's factor and Dec reads blank N2
             ws.cell(r, col, f"=Forecast_Input!{L}{fr_c}*Seasonality!{L}$2")
             ws.cell(r + 1, col, f"=Forecast_Input!{L}{fr_h}*Seasonality!{L}$2")
             ws.cell(r + 2, col, f"=({L}{r}*AHT_Call_sec+{L}{r+1}*AHT_Chat_sec)/3600")
@@ -113,10 +114,10 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
         r += 5
     # DEFECTS
     ws["F5"] = 42                                    # hard-coded FTE override inside a formula row (Primary Care, Apr)
-    ws["F5"].comment = Comment("Manual override per ops lead — DEFECT: hard-coded", "practice")
+    ws["F5"].comment = Comment("Manual override per ops lead", "practice")
     ws["I9"] = "=I7*1.05/3600"                       # magic number + wrong logic (Behavioral Health, Jul handle hours)
     ws["K15"] = "=K14/(Hours_per_FTE_month*(1-0.30)*Occupancy)"  # hard-coded shrinkage instead of named range (Navigation, Sep FTE)
-    ws["M19"] = "=Forecast_Input!M8*Seasonality!L$2"             # inconsistent: a seasonal-volume formula pasted into the Handle-hours row (Pharmacy, Nov), and it reads Oct's factor
+    ws["M19"] = "=Forecast_Input!M8*Seasonality!L$2"             # inconsistent: a seasonal-volume formula pasted into the Handle-hours row (Pharmacy, Nov); its L$2 breaks the block's pattern
     ws["B24"] = "Total FTE"
     for m in range(12):
         L = ws.cell(1, 3 + m).column_letter
@@ -164,7 +165,7 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
         "| 1 | Staffing_Calc!F5 | hardcoded_in_formula_range | literal 42 overrides the Required-FTE formula (Primary Care, Apr) |\n"
         "| 2 | Staffing_Calc!I9 | inconsistent_formula + magic_number | Behavioral Health Jul handle-hours uses `I7*1.05/3600`, drops chats and AHT, adds an unexplained 1.05 |\n"
         "| 3 | Staffing_Calc!K15 | inconsistent_formula + magic_number | shrinkage hard-coded as 0.30 instead of the named range (Navigation, Sep) |\n"
-        "| 4 | Staffing_Calc!M19 | inconsistent_formula | Pharmacy **Nov Handle hours** row holds a seasonal-volume formula (`Forecast_Input!M8*Seasonality!L$2`): wrong logic for the row (volume, not hours) AND it reads Oct's factor. Column M = Nov, not Dec |\n"
+        "| 4 | Staffing_Calc!M19 | inconsistent_formula | Pharmacy **Nov Handle hours** row holds a seasonal-volume formula (`Forecast_Input!M8*Seasonality!L$2`): wrong logic for the row (volume, not hours) AND its `Seasonality!L$2` breaks the block's column pattern. By label, L is Nov, so this one cell happens to read its own month's factor while its neighbors are off by one (#17). Column M = Nov, not Dec |\n"
         "| 5 | Staffing_Calc!C26 | dynamic_reference | INDIRECT builds an address from C27; untraceable |\n"
         "| 6 | Staffing_Calc!C28 | volatile_function | TODAY() |\n"
         "| 7 | Seasonality!C6 | broken_reference / error_value | `=#REF!*1.1` |\n"
@@ -172,11 +173,12 @@ def build(path: str, seed: int = 7) -> tuple[str, str]:
         "| 9 | Schedule_Output!E2 | external_dependency | IMPORTRANGE to a benchmark file nobody owns |\n"
         "| 10 | Old_Version_DO_NOT_USE | hidden_sheet + orphan_sheet | hidden stale copy |\n"
         "| 11 | Assumptions!B8 | stale input | Last_updated 2025-11-30 (not detectable by script; read the labels) |\n"
-        "| 12 | Assumptions (Unused_Buffer) | unused_named_range | defined, never referenced |\n"
+        "| 12 | Assumptions (Buffer_pct, B12) | unused_named_range | defined, never referenced |\n"
         "| 13 | Forecast_Input row 13 | missing_checks (partial) | total check covers 2 of 12 months |\n"
         "| 14 | Checks!A6 | missing_checks | reconciliation Staffing_Calc -> Schedule_Output is a TODO |\n"
         "| 15 | Checks!B2 / B3 | whole_column_reference | fine here, but note it |\n"
-        "| 16 | README!A5 | stale documentation | says 'see cell B7 on Assumptions'; Last_updated is at B8 (unplanned; the GEM found it on run 1, 2026-09-11) |\n\n"
-        "Things the script cannot see and a human must: the staleness in #11, the *semantic* wrongness of #2 (a script flags the pattern break; only reading the line label tells you chats were dropped), and whether #1 was a legitimate business override.\n"
+        "| 16 | README!A5 | stale documentation | says 'see cell B7 on Assumptions'; Last_updated is at B8 (unplanned; the GEM found it on run 1, 2026-09-11) |\n"
+        "| 17 | Staffing_Calc rows 2-3, 7-8, 12-13, 17-18 (C:N) | seasonal factor off by one month | Seasonality's months start in column B (Jan) but every seasonal formula reads the Staffing_Calc column letter, so Jan applies Feb's factor and so on, and Dec reads blank `Seasonality!N2` (zero Dec volume, hours and FTE). The block is internally consistent, so no pattern check flags it; compare the header labels across sheets. Unplanned; found by a Claude Sonnet stand-in on 2026-10-20 and kept on purpose |\n\n"
+        "Things the script cannot see and a human must: the staleness in #11 (no label says so; read the date), the month misalignment in #17, the *semantic* wrongness of #2 (a script flags the pattern break; only reading the line label tells you chats were dropped), and whether #1 was a legitimate business override.\n"
     )
     return str(out), str(key)
