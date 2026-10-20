@@ -145,7 +145,7 @@ Useful views: `vw_sheet_summary`, `vw_sheet_dependency`, `vw_defects`, `vw_defec
 3. Attach the two Docs as the Gem's Knowledge.
 4. After every push, remove and re-attach the Docs in the Gem editor. Gemini does not re-read a linked Doc on its own.
 
-Scored runs of the 24-question acceptance test on the seeded sample (`docs/GEM_INSTRUCTIONS.md`): the Gemini Gem answered 24 of 24 with citations on instructions v2.1 (2026-09-11). On 2026-10-20, a blind Claude Sonnet stand-in answered 24 of 24 on v2.2, after three answer-giving labels were removed from the sample. It invented no values, held all four traps, and made three minor citation slips. Each scored run has found something the answer key missed: #16 on the first run, and the month misalignment kept as #17.
+Scored runs of the 24-question acceptance test on the seeded sample (`docs/GEM_INSTRUCTIONS.md`): the Gemini Gem answered 24 of 24 with citations on instructions v2.1 (2026-09-11). On 2026-10-20, a blind Claude Sonnet stand-in answered 24 of 24 on v2.2, after three answer-giving labels were removed from the sample. It invented no values, held all four traps, and made three minor citation slips. Each scored run has found something the answer key missed: #16 on the first run, and the month misalignment kept as #17. A third run the same day, on instructions v2.3, checked the rule 7a change: the drafted cover note now includes the issues the analysis found but no script flags (the month misalignment, the stale date and the README pointer), each marked as not a script finding.
 
 ## The method this supports
 
